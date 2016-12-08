@@ -1,4 +1,4 @@
-from .person import Person
+from .person import Person, Fellow, Staff
 #from docopt import docopt
 #print (docopt(__doc__))
 class Amity(object):
@@ -39,7 +39,7 @@ class Amity(object):
             f_name=Staff(f_name,s_name,role)
             self.staffs.append(f_name)
         self.persons=self.staffs+self.fellows
-        
+
     def allocate_room(self,f_name,s_name,role,args):
         if args[0]=='Y':
             guy=Person(f_name,s_name,role)
