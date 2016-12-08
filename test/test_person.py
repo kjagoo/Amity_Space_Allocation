@@ -2,20 +2,21 @@ import unittest
 import sys
 sys.path.append('../')
 from app.person import Person, Staff, Fellow
+from app.room import Amity
 
 class TDDamity(unittest.TestCase):
     def setUp(self):
-        self.person=Person()
+        self.amity=Amity()
 
     def test_add_person(self):
-        prev_len_persons=len(self.person.persons)
-        prev_len_fellows=len(self.person.fellows)
+        prev_len_persons=len(self.amity.persons)
+        prev_len_fellows=len(self.amity.fellows)
 
-        joshua=self.person.add_person('Judo','kagenyi','Fellow')
+        joshua=self.amity.add_person('Judo','kagenyi','Fellow')
 
-        self.assertEqual(len(self.person.persons), prev_len_persons+1,msg='The list of persons should increase')
-        self.assertEqual(len(self.person.fellows), prev_len_fellows+1,msg='The list of fellows should increase')
-        self.assertEqual(self.person.fellows[0].role, "Fellow",msg='the Person create Should be a Fellow')
+        self.assertEqual(len(self.amity.persons), prev_len_persons+1,msg='The list of persons should increase')
+        self.assertEqual(len(self.amity.fellows), prev_len_fellows+1,msg='The list of fellows should increase')
+        self.assertEqual(self.amity.fellows[0].role, "Fellow",msg='the Person create Should be a Fellow')
 
 
     #

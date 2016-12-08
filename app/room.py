@@ -5,13 +5,12 @@ class Amity(object):
     ''' amity class creates multiple rooms and allocates to persons'''
 
     def __init__(self):
-
         self.offices=[]
         self.lspace=[]
         self.rooms=self.offices +self.lspace
         self.fellows=[]
-        self.staff=[]
-        self.person=self.staff+self.fellows
+        self.staffs=[]
+        self.persons=self.staffs+self.fellows
         self.rm_occupancy={}
         self.pending=[]
 
@@ -31,9 +30,24 @@ class Amity(object):
         self.rooms=self.offices +self.lspace
         self.rm_occupancy={rm_name.rm_name:[]}
 
+    def add_person(self,f_name,s_name,role):
 
-    def allocate_room(self):
+        if role=='Fellow':
+            f_name=Fellow(f_name,s_name,role)
+            self.fellows.append(f_name)
+        elif self.role=='Staff':
+            f_name=Staff(f_name,s_name,role)
+            self.staffs.append(f_name)
+        self.persons=self.staffs+self.fellows
         
+    def allocate_room(self,f_name,s_name,role,args):
+        if args[0]=='Y':
+            guy=Person(f_name,s_name,role)
+            self.rm_occupancy['uganda'].append(guy)
+            print (self.rm_occupancy['uganda'])
+
+
+
 
 
 

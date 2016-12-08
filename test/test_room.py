@@ -19,8 +19,8 @@ class TDDamity(unittest.TestCase):
 
     def test_amity_create_room_method(self):
         ''' test wether room object is added in list of rooms in Amity Class'''
-        len_offices=len(self.amity.offices)
-        len_rooms=len(self.amity.rooms)
+        len_offices=len(self.amity.offices)#previous lenth of office list
+        len_rooms=len(self.amity.rooms)#previous lenth of rooms list
         uganda=self.amity.create_room('uganda','Office')
         self.assertEqual(len(self.amity.rooms),len_offices+1,msg='the room should be in the list of Offices ')
         self.assertEqual(len(self.amity.rooms),len_rooms+1,msg='the room should be in the list of room names')
