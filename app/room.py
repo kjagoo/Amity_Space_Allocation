@@ -1,4 +1,5 @@
 from .person import Person, Fellow, Staff
+import random
 #from docopt import docopt
 #print (docopt(__doc__))
 class Amity(object):
@@ -11,8 +12,9 @@ class Amity(object):
         self.fellows=[]
         self.staffs=[]
         self.persons=self.staffs+self.fellows
-        self.rm_occupancy={}
+        self.rm_occupancy={'uganda':[]}
         self.pending=[]
+        self.allocated_persons=[]
 
     def create_room(self,rm_name,rm_type):
         '''create a room instance and append it to the rooms lists.'''
@@ -43,8 +45,16 @@ class Amity(object):
     def allocate_room(self,f_name,s_name,role,args):
         if args[0]=='Y':
             guy=Person(f_name,s_name,role)
-            self.rm_occupancy['uganda'].append(guy)
-            print (self.rm_occupancy['uganda'])
+            random_room=random.choice(list(self.rm_occupancy.keys()))
+            self.rm_occupancy[random_room].append(guy)
+            print(random_room)
+
+            self.allocated_persons.append(guy)
+
+            print(self.rm_occupancy)
+            print (self.rm_occupancy['uganda'][0].f_name)
+            print(self.allocated_persons)
+
 
 
 

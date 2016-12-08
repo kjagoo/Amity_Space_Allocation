@@ -26,6 +26,11 @@ class TDDamity(unittest.TestCase):
         self.assertEqual(len(self.amity.rooms),len_rooms+1,msg='the room should be in the list of room names')
         self.assertIn('uganda',self.amity.rm_occupancy, msg='the room should be in the dictionary of rooms')
 
+    def test_allocate_room(self):
+        len_allocated_persons=len(self.amity.allocated_persons)
+        self.amity.allocate_room('Judo','kagenyi','Fellow','Y')
+        self.assertEqual(len(self.amity.allocated_persons),len_allocated_persons+1,msg='the room should be in the list of Offices ')
+
 
 
 
