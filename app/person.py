@@ -15,7 +15,7 @@ class Staff(Person):
         self.f_name=f_name
         self.s_name=s_name
         self.role=role
-        self.rm_type='Office'
+        self.rm_type='Staff'
 
 class Fellow(Person):
 

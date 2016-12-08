@@ -35,7 +35,7 @@ class Amity(object):
         if role=='Fellow':
             f_name=Fellow(f_name,s_name,role)
             self.fellows.append(f_name)
-        elif self.role=='Staff':
+        elif role=='Staff':
             f_name=Staff(f_name,s_name,role)
             self.staffs.append(f_name)
         self.persons=self.staffs+self.fellows
