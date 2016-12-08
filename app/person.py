@@ -3,27 +3,20 @@ class Person (object):
 
     def __init__(self,*args):
 
-        self.f_name=args[0]
-        self.s_name=args[1]
-        self.role=args[2]
-        if isinstance(self.role,(int,tuple))==True:
-            raise ValueError ('Role can only be Fellow or Staff')
-        
 
-        self.person=[]
-        self.staff=[]
-        self.fellow=[]
+        self.persons=[]
+        self.staffs=[]
+        self.fellows=[]
 
-    def add_person(self):
+    def add_person(self,f_name,s_name,role):
 
-        if (self.role)=='Fellow':
-            self.f_name=Fellow(self.f_name,self.s_name,self.role)
-            self.fellow.append(self.f_name)
-        elif (self.role)=='Staff':
-            #names='self.f_name'+'self.s_name'
-            self.f_name=Staff(self.f_name,self.s_name,self.role)
-            self.staff.append(self.f_name)
-        self.person=self.staff+self.fellow
+        if role=='Fellow':
+            f_name=Fellow(f_name,s_name,role)
+            self.fellows.append(f_name)
+        elif self.role=='Staff':
+            f_name=Staff(f_name,s_name,role)
+            self.staffs.append(f_name)
+        self.persons=self.staffs+self.fellows
 
 class Staff(Person):
 

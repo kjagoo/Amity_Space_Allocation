@@ -5,37 +5,23 @@ from app.person import Person, Staff, Fellow
 
 class TDDamity(unittest.TestCase):
     def setUp(self):
-        pass
+        self.person=Person()
 
     def test_add_person(self):
-        joshua=Person('joshua','kagenyi','Fellow')
-        joshua.add_person()
-        result= joshua.person[0].f_name
-        #Sprint (result)
-        self.assertIn('joshua', result,msg='the room should be in the list of room names')
+        prev_len_persons=len(self.person.persons)
+        prev_len_fellows=len(self.person.fellows)
 
-    def test_person_fello_in_list(self):
-        Judo=Person('Judo','kagenyi','Fellow')
-        Judo.add_person()
-        result= Judo.fellow[0].f_name
-        #print(result)
-        self.assertIn('Judo', result ,msg='the person should be in the fellows list')
+        joshua=self.person.add_person('Judo','kagenyi','Fellow')
 
-    def test_person_staff_in_list(self):
-        joshua=Person('joshua','kagenyi','Staff')
-        joshua.add_person()
-        result= joshua.staff[0].f_name
-        #print(result)
-        self.assertIn('joshua', result ,msg='the person should be in the Staff list')
+        self.assertEqual(len(self.person.persons), prev_len_persons+1,msg='The list of persons should increase')
+        self.assertEqual(len(self.person.fellows), prev_len_fellows+1,msg='The list of fellows should increase')
+        self.assertEqual(self.person.fellows[0].role, "Fellow",msg='the Person create Should be a Fellow')
 
 
+    #
 
-    '''def test_raise_error_on_wrong_role(self):
-        hogs=Person('joshua','kagenyi','w')
-        hogs.add_person()
-        result= hogs.fellow
-        self.assertIn('joshua', result ,msg='the person should be in the fellows list')'''
-
+    def test_raise_error_on_wrong_role(self):
+        pass
 
 
 if __name__ == '__main__':

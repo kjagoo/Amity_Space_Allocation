@@ -4,71 +4,38 @@ from .person import Person
 class Amity(object):
     ''' amity class creates multiple rooms and allocates to persons'''
 
-    def __init__(self,rm_name,*args):
-        self.rm_name=rm_name
-        self.rm_size=0
+    def __init__(self):
 
-        if len(args)>0:
-            self.rm_type=args[0]
-        else:
-            raise TypeError ('add room type')
-
-        self.offices=['uganda','nigeria']
-        self.lspace=['kenya','tanzania']
+        self.offices=[]
+        self.lspace=[]
         self.rooms=self.offices +self.lspace
-        self.fellows=['joshua','jones','maria','daniels']
-        self.staff=['abby','dan','chris','jack']
+        self.fellows=[]
+        self.staff=[]
         self.person=self.staff+self.fellows
         self.rm_occupancy={}
         self.pending=[]
 
-    def create_room(self):
-        if self.rm_name ==' ':
-            raise TypeError ('Room name should not be empty')
+    def create_room(self,rm_name,rm_type):
+        '''create a room instance and append it to the rooms lists.'''
 
-        if isinstance(self.rm_name,str)==False:
-            raise TypeError ('Room name should be a string')
+        if rm_name in self.rooms:
+            raise ValueError("A room with same name already exist")
+        if rm_type=='Office':
+            rm_name=Office(rm_name)
+            self.offices.append(rm_name)
 
-        self.rm_name=Room(self.rm_name,self.rm_type)
-        self.rm_size=Room(self.rm_name,self.rm_type).rm_size
-        self.rooms.append(self.rm_name.rm_name)
-        self.rm_occupancy={self.rm_name.rm_name:[]}
-        if (self.rm_name.rm_name) in self.rooms: self.rooms.remove(self.rm_name.rm_name) #remove similar
+        elif rm_type=='LivingSpace':
+            rm_name=LivingSpace(rm_name)
+            self.lspace.append(rm_name)
 
-        #print (self.rm_occupancy)
+        self.rooms=self.offices +self.lspace
+        self.rm_occupancy={rm_name.rm_name:[]}
+
 
     def allocate_room(self):
+        
 
-        for room in self.rooms:
-            self.rm_occupancy[room]=[]
-        self.rm_occupancy[self.rm_name]=[]
 
-        count=0
-        ee={office:self.rm_occupancy[office] for office in set(self.rm_occupancy.keys()) & set(self.offices)}
-        print (ee)
-        for office in ee:
-            for person in self.person:
-                if len(self.rm_occupancy[office])< 6:
-                    self.rm_occupancy[office].append(person)
-                    
-                else:
-                    self.pending.append(person)
-                    count+=1
-
-        for lspace in sorted(self.rm_occupancy.keys()):
-            for person in self.fellows:
-                if len(self.rm_occupancy[lspace])< 4:
-                    self.rm_occupancy[lspace].append(person)
-                    self.person.remove(person)
-                else:
-                    self.pending.append(person)
-                    count+=1
-
-        #print (self.rm_occupancy)
-        #print (self.pending,'pending allocation')
-
-    def reallocate_room(self):
-        pass
 
     def view_all_rooms(self):
         print ('List of all rooms',self.rm_occupancy)
@@ -83,27 +50,30 @@ class Amity(object):
         pass
 
 
-class Room (Amity):
+class Room (object):
     ''' Room class creates the object attributes of the room'''
-    def __init__(self, rm_name, *args):
-        super(Room,self).__init__(rm_name,*args)
-        self.rm_name=rm_name
+    def __init__(self,rm_name):
+        self.rm_name = rm_name
         self.occupants=[]
-        self.rm_size=0
+        if type(self.rm_name)!=str:
+            raise TypeError("Room name can only be a string")
 
-        if self.rm_type=='Office':
-            self.rm_size = Office().rm_size
+    @property
+    def room_type(self):
+        return self.__class__.__name__
 
-        elif self.rm_type =='LivingSpace':
-            self.rm_size = LivingSpace().rm_size
-        else:
-            raise ValueError ('Rooms can only be LivingSpace or Offices')
 
 class Office(Room):
-
-    def __init__(self):
+    #rm_size=6
+    def __init__(self,rm_name):
+        super(Office, self).__init__(rm_name)
+        self.rm_name=rm_name
         self.rm_size=6
 
+
 class LivingSpace(Room):
-    def __init__(self):
+    #rm_size=4
+    def __init__(self,rm_name):
+        super(Office, self).__init__(rm_name)
+        self.rm_name=rm_name
         self.rm_size=6
