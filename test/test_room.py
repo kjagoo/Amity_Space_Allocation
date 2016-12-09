@@ -31,12 +31,12 @@ class TDDamity(unittest.TestCase):
 
     def test_allocate_room(self):
         len_allocated_persons=len(self.amity.allocated_persons)#previous list of persons allocated rooms
-        len_pending=len(self.amity.pending)#previous list of persons pending allocation
+        len_unallocated_persons=len(self.amity.unallocated_persons)#previous list of persons unallocated_persons allocation
         self.amity.allocate_room('joshua','kagenyi','Fellow','Y')
         self.assertEqual(len(self.amity.allocated_persons),len_allocated_persons+1,msg='person should be added to allocated list ')
 
         self.amity.allocate_room('Judo','kagenyi','Fellow')
-        self.assertEqual(len(self.amity.pending),len_pending+1,msg='the person should be added into the pending list ')
+        self.assertEqual(len(self.amity.unallocated_persons),len_unallocated_persons+1,msg='the person should be added into the unallocated_persons list ')
 
     def test_allocate_room_raises_error_on_wrong_fourth_paremeter(self):
         '''test value error raised for worng fourh paremeter'''
@@ -62,6 +62,15 @@ class TDDamity(unittest.TestCase):
     def test_reallocation_room_raises_error_if_new_room_Not_exist(self):
         ''' Test new room exists in amity before realocation and assert valueerror raised if not'''
         with self.assertRaises(ValueError):self.amity.reallocate_room('justin_baiber','banana_republic')
+
+    def test_print_allocation(self):
+        self.amity.print_room_allocated()
+        for person in self.amity.allocated_persons:
+            self.assertTrue(any(person in people for people in self.amity.rm_occupancy.values()),msg='the report produced shorld include all alocated persons')
+
+    def test_print_unallocated(self):
+        self.amity.print_unallocated()
+        
 
 
     # def test_room_office_in_instance(self):

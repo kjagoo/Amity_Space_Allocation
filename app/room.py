@@ -12,9 +12,9 @@ class Amity(object):
         self.fellows=[]
         self.staffs=[]
         self.persons=self.staffs+self.fellows
-        self.rm_occupancy={'uganda':[],'tanzania':[]}
-        self.pending=[]
-        self.allocated_persons=[]
+        self.rm_occupancy={'uganda':['joshua','Robert'],'tanzania':['job']}
+        self.unallocated_persons=['joshua','job']
+        self.allocated_persons=['joshua','job']
 
     def create_room(self,rm_name,rm_type):
         '''create a room instance and append it to the rooms lists.'''
@@ -55,7 +55,7 @@ class Amity(object):
                 raise ValueError("value can only be Y")
         else:
             guy=Person(f_name,s_name,role)
-            self.pending.append(guy.f_name)
+            self.unallocated_persons.append(guy.f_name)
 
     def reallocate_room(self, f_name,new_room_name):
         ''' gets the current room where person is alocated ; remove the person from that room and
@@ -75,11 +75,17 @@ class Amity(object):
             raise ValueError ("the room does not exist")
 
 
-    def print_room(self):
-        print ('List of all occupants in room',self.rm_occupancy[rm_name])
+    def print_room_allocated(self):
+        '''prints a list of all alocated rooms and their occupance'''
+        for person in self.allocated_persons:
+            room_name=[k for k, v in self.rm_occupancy.items() if person in v ][0]
+            return ('Room : ',room_name, ' = ', ', '.join(self.rm_occupancy[room_name]),'\n')
+
 
     def print_unallocated(self):
-        print ('List of all unallocated persons',self.pending)
+        person=0
+        for person in self.unallocated_persons:
+            return (person)
 
     def load_people(self):
         pass
