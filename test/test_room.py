@@ -33,11 +33,14 @@ class TDDamity(unittest.TestCase):
         len_allocated_persons=len(self.amity.allocated_persons)#previous list of persons allocated rooms
         len_pending=len(self.amity.pending)#previous list of persons pending allocation
         self.amity.allocate_room('joshua','kagenyi','Fellow','Y')
-
         self.assertEqual(len(self.amity.allocated_persons),len_allocated_persons+1,msg='person should be added to allocated list ')
 
         self.amity.allocate_room('Judo','kagenyi','Fellow')
         self.assertEqual(len(self.amity.pending),len_pending+1,msg='the person should be added into the pending list ')
+
+    def test_allocate_room_raises_error_on_wrong_fourth_paremeter(self):
+        '''test value error raised for worng fourh paremeter'''
+        with self.assertRaises(ValueError):self.amity.allocate_room('joshua','kagenyi','Fellow','Z')
 
     def test_reallocation_room(self):
         ''' test wether person is reallocated successfully : remove from previous room and added to new room'''
@@ -46,13 +49,19 @@ class TDDamity(unittest.TestCase):
         len_previous_room=len(self.amity.rm_occupancy[previous_room])
         len_of_new_room=len(self.amity.rm_occupancy['tanzania'])
 
-        dada=self.amity.reallocate_room('joshua','tanzania')
+        self.amity.reallocate_room('joshua','tanzania')
         # check that lenght of new room has increased by 1
         self.assertEqual(len(self.amity.rm_occupancy['tanzania']),len_of_new_room+1,msg='number of occupants in new room should increase ')
         # check that length of previous room has decreased by 1
         self.assertEqual(len(self.amity.rm_occupancy[previous_room]),len_previous_room-1,msg='number of occupants in prevoius room should decrease ')
 
+    def test_reallocation_room_raises_error_if_person_does_not_exist(self):
+        ''' test that person being reallocated exists in Amity and ValueError raised if not'''
+        with self.assertRaises(ValueError):self.amity.reallocate_room('joshua','banana_republic')
 
+    def test_reallocation_room_raises_error_if_new_room_Not_exist(self):
+        ''' Test new room exists in amity before realocation and assert valueerror raised if not'''
+        with self.assertRaises(ValueError):self.amity.reallocate_room('justin_baiber','banana_republic')
 
 
     # def test_room_office_in_instance(self):

@@ -51,6 +51,8 @@ class Amity(object):
 
                 self.rm_occupancy[random_room].append(guy.f_name)
                 self.allocated_persons.append(guy.f_name)
+            else:
+                raise ValueError("value can only be Y")
         else:
             guy=Person(f_name,s_name,role)
             self.pending.append(guy.f_name)
@@ -58,11 +60,19 @@ class Amity(object):
     def reallocate_room(self, f_name,new_room_name):
         ''' gets the current room where person is alocated ; remove the person from that room and
         allocate the person to another room '''
+
+        if f_name in self.persons == False:
+            raise ValueError ("the person does not exist")
+        if new_room_name not in self.rm_occupancy.keys() ==True:
+            raise ValueError ("the room does not exist")
+
         for k,v in self.rm_occupancy.items():
             if f_name in v:
                 v.remove(f_name)
-
-        self.rm_occupancy[new_room_name].append(f_name) # add person to new room
+        try:
+            self.rm_occupancy[new_room_name].append(f_name) # add person to new room
+        except:
+            raise ValueError ("the room does not exist")
 
 
     def print_room(self):
