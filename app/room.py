@@ -1,5 +1,6 @@
 from .person import Person, Fellow, Staff
 import random
+# import os
 #from docopt import docopt
 #print (docopt(__doc__))
 class Amity(object):
@@ -88,7 +89,24 @@ class Amity(object):
             return (person)
 
     def load_people(self):
-        pass
+        '''get names of people from a list and randomly allocate them rooms'''
+        f = open('./people_to_load.txt', 'r')
+        people = f.read().split(',')
+        people=[people.rstrip('\n') for people in open('./people_to_load.txt')]
+
+        for person in people:
+            random_room=random.choice(list(self.rm_occupancy.keys()))
+            self.rm_occupancy[random_room].append(person)
+        return(self.rm_occupancy)
+
+    def print_room_occupants(self,room_name):
+        '''prints out all the occupants of the said room'''
+        if room_name in list(self.rm_occupancy.keys()):
+            return (room_name,': ', ', '.join(self.rm_occupancy[room_name]))
+        else:
+            raise TypeError("there is no such room, kindly try another name ")
+
+
 
 
 class Room (object):

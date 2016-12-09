@@ -1,5 +1,5 @@
 import unittest
-#import sys
+# import sys
 # sys.path.append('../')
 from app.room import Amity, Room, Office, LivingSpace
 from app.person import Person
@@ -68,65 +68,18 @@ class TDDamity(unittest.TestCase):
         for person in self.amity.allocated_persons:
             self.assertTrue(any(person in people for people in self.amity.rm_occupancy.values()),msg='the report produced shorld include all alocated persons')
 
-    def test_print_unallocated(self):
-        self.amity.print_unallocated()
-        
+    # def test_print_unallocated(self):
+    #     self.amity.print_unallocated()
+    #
+    #
+    # def test_load_people(self):
+    #     self.amity.load_people()
 
+    # def test_room_occupants(self):
+    #     self.amity.print_room_occupants('tanzania')
+    #     people=len(self.amity.rm_occupancy['tanzania'])
+    #
 
-    # def test_room_office_in_instance(self):
-    #     ''' test wether room instance gets the room size from Office Class'''
-    #     hogs=Amity('hogs','Office')
-    #     hogs.create_room()
-    #     self.assertEqual(hogs.rm_name.rm_size, 6,msg='the room should be in the list of room names')
-    #
-    #
-    # def test_room_LivingSpace_in_instance(self):
-    #     ''' test wether instance has room type LivingSpace for room type living space'''
-    #     hogs=Amity('hogs','LivingSpace')
-    #     #print(hogs.rm_type)
-    #     self.assertEqual('LivingSpace', hogs.rm_type,msg='the room should be in the list of room names')
-    #
-    #
-    # def test_room_view_all_rooms(self):
-    #     ''' view a list of rooms '''
-    #     Uganda=Amity('uganda','LivingSpace')
-    #     tanzania=Amity('Tanzania','LivingSpace')
-    #     result=Uganda.create_room()
-    #     result1=tanzania.create_room()
-    #     #print (Uganda.rooms,Uganda.rooms.rm_name)
-    #     self.assertIn('uganda',Uganda.rooms,msg='the room should be in the list of room names')
-    #     self.assertIn('tanzania',tanzania.rooms,msg='the room should be in the list of room names')
-    #
-    # def test_add_person_in_room(self):
-    #     ''' check if added person name is in room occupants list'''
-    #     hogs=Amity('hogs','LivingSpace')
-    #     hogs.create_room()
-    #     joshua=Person('joshua','kagenyi','Fellow')
-    #     joshua.add_person()
-    #     hogs.allocate_room()
-    #     #print(hogs.rm_occupancy[hogs.rm_name.rm_name],list(hogs.rm_occupancy.values()))
-    #     self.assertIn(joshua.f_name.f_name, hogs.rm_occupancy[hogs.rm_name.rm_name], msg='the room should be in the list of room names')
-    #
-    # def test_print_all_rooms(self):
-    #     '''prints a list of all rooms with their occupancy'''
-    #     hogs=Amity('hogs','LivingSpace')
-    #     hogs.allocate_room()
-    #     hogs.view_all_rooms()
-    #     print (hogs.rm_occupancy)
-    #     self.assertIn('hogs', hogs.rm_occupancy, msg='the room should exist in dictionary of rooms')
-    #
-    #
-    #
-    # def test_room_space(self):
-    #
-    #     pass
-    # def test_room_if_full_raises_value_error(self):
-    #
-    #     pass
-    # def test_allocate_room(self):
-    #
-    #     pass
-    #
 
 
 if __name__ == '__main__':
