@@ -22,14 +22,35 @@ class TDDamity(unittest.TestCase):
         len_offices=len(self.amity.offices)#previous lenth of office list
         len_rooms=len(self.amity.rooms)#previous lenth of rooms list
         uganda=self.amity.create_room('uganda','Office')
+
         self.assertEqual(len(self.amity.rooms),len_offices+1,msg='the room should be in the list of Offices ')
         self.assertEqual(len(self.amity.rooms),len_rooms+1,msg='the room should be in the list of room names')
-        self.assertIn('uganda',self.amity.rm_occupancy, msg='the room should be in the dictionary of rooms')
+        tz=self.amity.create_room('tanzania','LivingSpace')
+        self.assertIn('tanzania',self.amity.rm_occupancy, msg='the room should be in the dictionary of rooms')
+
 
     def test_allocate_room(self):
-        len_allocated_persons=len(self.amity.allocated_persons)
-        self.amity.allocate_room('Judo','kagenyi','Fellow','Y')
-        self.assertEqual(len(self.amity.allocated_persons),len_allocated_persons+1,msg='the room should be in the list of Offices ')
+        len_allocated_persons=len(self.amity.allocated_persons)#previous list of persons allocated rooms
+        len_pending=len(self.amity.pending)#previous list of persons pending allocation
+        self.amity.allocate_room('joshua','kagenyi','Fellow','Y')
+
+        self.assertEqual(len(self.amity.allocated_persons),len_allocated_persons+1,msg='person should be added to allocated list ')
+
+        self.amity.allocate_room('Judo','kagenyi','Fellow')
+        self.assertEqual(len(self.amity.pending),len_pending+1,msg='the person should be added into the pending list ')
+
+    def test_reallocation_room(self):
+        ''' test wether person is reallocated successfully : remove from previous room and added to new room'''
+        self.amity.rm_occupancy['uganda'].append('joshua') # automatically add person to room
+        previous_room=[k for k, v in self.amity.rm_occupancy.items() if 'joshua' in v][0]
+        len_previous_room=len(self.amity.rm_occupancy[previous_room])
+        len_of_new_room=len(self.amity.rm_occupancy['tanzania'])
+
+        dada=self.amity.reallocate_room('joshua','tanzania')
+        # check that lenght of new room has increased by 1
+        self.assertEqual(len(self.amity.rm_occupancy['tanzania']),len_of_new_room+1,msg='number of occupants in new room should increase ')
+        # check that length of previous room has decreased by 1
+        self.assertEqual(len(self.amity.rm_occupancy[previous_room]),len_previous_room-1,msg='number of occupants in prevoius room should decrease ')
 
 
 

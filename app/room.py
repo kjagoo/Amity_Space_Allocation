@@ -12,7 +12,7 @@ class Amity(object):
         self.fellows=[]
         self.staffs=[]
         self.persons=self.staffs+self.fellows
-        self.rm_occupancy={'uganda':[]}
+        self.rm_occupancy={'uganda':[],'tanzania':[]}
         self.pending=[]
         self.allocated_persons=[]
 
@@ -30,7 +30,7 @@ class Amity(object):
             self.lspace.append(rm_name)
 
         self.rooms=self.offices +self.lspace
-        self.rm_occupancy={rm_name.rm_name:[]}
+        self.rm_occupancy[rm_name.rm_name]=[]
 
     def add_person(self,f_name,s_name,role):
 
@@ -42,27 +42,28 @@ class Amity(object):
             self.staffs.append(f_name)
         self.persons=self.staffs+self.fellows
 
-    def allocate_room(self,f_name,s_name,role,args):
-        if args[0]=='Y':
+    def allocate_room(self,f_name,s_name,role,*args):
+        ''' add a person and allocate them a random room if he passes 'Y' as fouth paremeter'''
+        if args:
+            if args[0]=='Y':
+                guy=Person(f_name,s_name,role)
+                random_room=random.choice(list(self.rm_occupancy.keys()))
+
+                self.rm_occupancy[random_room].append(guy.f_name)
+                self.allocated_persons.append(guy.f_name)
+        else:
             guy=Person(f_name,s_name,role)
-            random_room=random.choice(list(self.rm_occupancy.keys()))
-            self.rm_occupancy[random_room].append(guy)
-            print(random_room)
+            self.pending.append(guy.f_name)
 
-            self.allocated_persons.append(guy)
+    def reallocate_room(self, f_name,new_room_name):
+        ''' gets the current room where person is alocated ; remove the person from that room and
+        allocate the person to another room '''
+        for k,v in self.rm_occupancy.items():
+            if f_name in v:
+                v.remove(f_name)
 
-            print(self.rm_occupancy)
-            print (self.rm_occupancy['uganda'][0].f_name)
-            print(self.allocated_persons)
+        self.rm_occupancy[new_room_name].append(f_name) # add person to new room
 
-
-
-
-
-
-
-    def view_all_rooms(self):
-        print ('List of all rooms',self.rm_occupancy)
 
     def print_room(self):
         print ('List of all occupants in room',self.rm_occupancy[rm_name])
@@ -98,6 +99,6 @@ class Office(Room):
 class LivingSpace(Room):
     #rm_size=4
     def __init__(self,rm_name):
-        super(Office, self).__init__(rm_name)
+        super(LivingSpace, self).__init__(rm_name)
         self.rm_name=rm_name
         self.rm_size=6
