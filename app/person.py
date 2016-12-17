@@ -6,8 +6,6 @@ class Person (object):
         self.s_name=s_name
         self.role=role
 
-
-
 class Staff(Person):
 
     def __init__(self,f_name,s_name,role):
@@ -15,7 +13,7 @@ class Staff(Person):
         self.f_name=f_name
         self.s_name=s_name
         self.role=role
-        self.rm_type='Staff'
+        self.rm_type='Office'
 
 class Fellow(Person):
 
