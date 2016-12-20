@@ -97,8 +97,8 @@ class AmityApplication(cmd.Cmd):
     def do_print_room(self, arg):
         ''' Usage: print_room <room_name>'''
         r_name = arg["<room_name>"]
-        if r_name.upper() in Amity.all_rooms:
-            Amity.print_room(r_name)
+        if r_name.upper() in self.amity.rooms:
+            self.amity.print_room_occupants(r_name)
         else:
             print('There is no room called %s in Amity' % r_name)
     @docopt_cmd
@@ -106,17 +106,17 @@ class AmityApplication(cmd.Cmd):
         '''Usage: print_allocations [--o=filename] '''
         filename = arg["--o"]
         if filename:
-            Amity.print_allocations(filename)
+            self.amity.print_room_allocated(filename)
         else:
-            Amity.print_allocations()
+            self.amity.print_room_allocated()
     @docopt_cmd
     def do_print_unallocated(self, arg):
         '''Usage: print_unallocated [--o=filename] '''
         filename = arg["--o"]
         if filename:
-            Amity.print_unallocated(filename)
+            self.amity.print_unallocated(filename)
         else:
-            Amity.print_unallocated()
+            self.amity.print_unallocated()
     @docopt_cmd
     def do_save_state(self, arg):
         '''Usage: save_state [--db=sqlite_database]'''
