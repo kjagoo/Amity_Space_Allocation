@@ -33,64 +33,66 @@ class Amity(object):
             self.lspace.append(rm_name.rm_name)
 
         self.rooms=self.offices +self.lspace
-        self.rm_occupancy[rm_name.rm_name]=[]
+        self.rm_occupancy[rm_name]=[]
+        print (rm_name,"Room successfully created")
 
 
     def add_person(self,f_name,s_name,role,*args):
         '''add person object to the persons list'''
-
-        fullname=f_name+s_name
-        if role=='Fellow':
-            f_name=Fellow(f_name,s_name,role)
-            self.fellows.append(f_name.f_name)
-        elif role=='Staff':
-            f_name=Staff(f_name,s_name,role)
-            self.staffs.append(f_name.f_name)
+        fullname=f_name + " " + s_name
+        if role=='fellow':
+            f_name=Fellow(f_name,s_name)
+            self.fellows.append(fullname)
+        elif role=='staff':
+            f_name=Staff(f_name,s_name)
+            self.staffs.append(fullname)
         else:
             raise TypeError("Person can only be Staff or Fellow")
 
         self.persons=self.staffs+self.fellows
+        print(fullname," successfully added")
+        self.allocate_office_automatically(f_name.f_name)
 
-
-    def allocate_office_automatically(self,f_name):
+    def allocate_office_automatically(self,fullname):
         '''allocate everyone to an office automaticaly'''
         random_room=random.choice(self.available_rooms)
         if random_room in self.offices:# get random office
-            self.rm_occupancy[random_room].append(f_name)
+            self.rm_occupancy[random_room].append(fullname)
             if len(self.rm_occupancy[random_room])==6:
                 self.full_rooms.append(random_room)
                 self.available_rooms.remove(random_room)
+                print ("allocated to %s Office"%random_room)
         else:
-            self.unallocated_persons.append(f_name)
+            self.unallocated_persons.append(fullname)
+        print (self.rm_occupancy)
 
     def allocate_room(self,f_name,s_name,role,*args):
         ''' add a person and allocate them a random room if he passes 'Y' as fouth paremeter'''
+        guy=Person(f_name,s_name)
         if args:
             if args[0]=='Y':
-                guy=Person(f_name,s_name,role)
-                self.allocated_persons.append(guy.f_name)#add person to list of persons with rooms
-                self.allocate_office_automatically(guy.f_name)# allocate office automaticaly
+                self.allocated_persons.append(guy.fullname)#add person to list of persons with rooms
+                self.allocate_office_automatically(guy.fullname)# allocate office automaticaly
                 random_room=random.choice(self.available_rooms)
                 if random_room in self.lspace:
-                    self.rm_occupancy[random_room].append(guy.f_name)#add person to living space room
+                    self.rm_occupancy[random_room].append(guy.fullname)#add person to living space room
                     if len(self.rm_occupancy[random_room])==4:
                         self.full_rooms.append(random_room)
                         self.available_rooms.remove(random_room)
             elif args[0]=='N':
-                guy=Person(f_name,s_name,role)
-                self.unallocated_persons.append(guy.f_name)
-                self.allocate_office_automatically(guy.f_name)
+                guy=Person(f_name,s_name)
+                self.unallocated_persons.append(guy.fullname)
+                self.allocate_office_automatically(guy.fullname)
             else:
                 raise ValueError("value can only be Y or N")
-        else:
-            guy=Person(f_name,s_name,role)
-            self.allocate_office_automatically(guy.f_name)
 
-    def reallocate_room(self, f_name,new_room_name):
+        self.allocate_office_automatically(guy.fullname)
+
+    def reallocate_room(self, fullname,new_room_name):
         ''' gets the current room where person is alocated ; remove the person from that room and
         allocate the person to another room '''
 
-        if f_name in self.persons == False:
+        if fullname in self.persons == False:
             raise ValueError ("the person does not exist")
         if new_room_name not in self.rm_occupancy.keys() ==True:
             raise ValueError ("the room does not exist")
@@ -98,13 +100,13 @@ class Amity(object):
             raise ValueError ("the room is full, kindly select another room")
 
         for k,v in self.rm_occupancy.items():#remove person from curret room occupancy
-            if f_name in v:
-                v.remove(f_name)
+            if fullname in v:
+                v.remove(fullname)
                 if k in self.full_rooms: #check if previous room was full
                     self.full_rooms.remove(k)# remove room from full room
                     self.available_rooms.append(k)# make room available
         try:
-            self.rm_occupancy[new_room_name].append(f_name) # add person to new room
+            self.rm_occupancy[new_room_name].append(fullname) # add person to new room
         except:
             raise ValueError ("the room does not exist in Room Occupancy dictionary")
 

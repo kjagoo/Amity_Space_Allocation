@@ -14,12 +14,12 @@ class TDDamity(unittest.TestCase):
         prev_len_fellows=len(self.amity.fellows)#length of list of fellows before adding a fellow
         prev_len_staffs=len(self.amity.staffs)#length of list of staffs before adding a staff
 
-        joshua=self.amity.add_person('Judo','kagenyi','Fellow')
+        joshua=self.amity.add_person('Judo','kagenyi','fellow')
 
         self.assertEqual(len(self.amity.persons), prev_len_persons+1,msg='The list of persons should increase')
         self.assertEqual(len(self.amity.fellows), prev_len_fellows+1,msg='The list of fellows should increase')
 
-        joshua=self.amity.add_person('Joshua','kagenyi','Staff')
+        joshua=self.amity.add_person('Joshua','kagenyi','staff')
         self.assertEqual(len(self.amity.staffs), prev_len_staffs+1,msg='The list of staffs should increase')
 
 
