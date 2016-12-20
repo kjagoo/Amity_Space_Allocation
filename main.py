@@ -72,9 +72,9 @@ class AmityApplication(cmd.Cmd):
         role = arg["<role>"]
         wants_accomodation = arg["<wants_accomodation>"]
         if wants_accomodation:
-            self.amity.add_person(f_name, l_name, role, wants_accomodation)
+            self.amity.add_person(f_name.upper(), l_name.upper(), role.upper(), wants_accomodation.upper())
         else:
-            self.amity.add_person(f_name, l_name, role, "N")
+            self.amity.add_person(f_name.upper(), l_name.upper(), role.upper(), "N")
     @docopt_cmd
     def do_load_people(self, arg):
         ''' Usage: load_people <filename>'''

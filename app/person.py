@@ -14,7 +14,7 @@ class Staff(Person):
         self.f_name=f_name
         self.s_name=s_name
         self.fullname=f_name + " " + s_name
-        self.rm_type='Office'
+        self.rm_type='OFFICE'
 
 class Fellow(Person):
 
@@ -23,4 +23,4 @@ class Fellow(Person):
         self.f_name=f_name
         self.s_name=s_name
         self.fullname=f_name + " " + s_name
-        self.rm_type='LivingSpace','Office'
+        self.rm_type='LIVINGSPACE','OFFICE'
