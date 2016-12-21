@@ -1,6 +1,6 @@
 '''
 Usage:
-    add_person <first_name> <last_name> <role> <wants_accomodation>
+    add_person <first_name> <last_name> <role> [--wants_accomodation=N]
     create_room <room_name> <room_type>
     reallocate_person <full_name> <new_room_name>
     load_people <filename>
@@ -46,42 +46,51 @@ def docopt_cmd(func):
     fn.__dict__.update(func.__dict__)
     return fn
 border = colored("*" * 20, 'cyan').center(80)
+
 def introduction():
     print (border)
     print ("WELCOME TO AMITY SPACE ALLOCATION!".center(70))
     print(__doc__)
     print (border)
+
 class AmityApplication(cmd.Cmd):
     cprint(figlet_format('AMITY', font='banner3-D'), 'cyan', attrs=['bold'])
     prompt = "Amity -->"
     amity=Amity()
+
     @docopt_cmd
     def do_create_room(self, arg):
         '''Usage: create_room <room_name> <room_type>'''
         r_name = arg["<room_name>"]
         r_type = arg["<room_type>"]
-        if r_name.upper() in self.amity.rooms:
+        if r_type.upper() != "OFFICE" and r_type.upper() != "LIVINGSPACE":
             print('Room already exists')
+        elif r_name.upper() in self.amity.rooms:
+            print ('Wrong room type: can only be Office or LivingSpace')
         else:
             self.amity.create_room(r_name.upper(), ''.join(r_type.upper()))
+
     @docopt_cmd
     def do_add_person(self, arg):
-        '''Usage: add_person <firstname> <lastname> <role> <wants_accomodation> '''
+        '''Usage: add_person <firstname> <lastname> <role> [--wants_accomodation=N] '''
         f_name = arg["<firstname>"]
         l_name = arg["<lastname>"]
         role = arg["<role>"]
-        wants_accomodation = arg["<wants_accomodation>"]
+        wants_accomodation = arg["--wants_accomodation"]
+
         if wants_accomodation:
-            self.amity.add_person(f_name.upper(), l_name.upper(), role.upper(), wants_accomodation.upper())
+            self.amity.add_person(f_name.upper(), l_name.upper(), role.upper(),
+                                  wants_accomodation.upper())
         else:
-            self.amity.add_person(f_name.upper(), l_name.upper(), role.upper(), "N")
+            self.amity.add_person(f_name.upper(), l_name.upper(), role.upper(), )
+
     @docopt_cmd
     def do_load_people(self, arg):
         ''' Usage: load_people <filename>'''
         file_n = arg["<filename>"]
-        if os.path.exists(file_n):
+        try:
             self.amity.load_people(file_n)
-        else:
+        except Exception:
             print("File not found")
     @docopt_cmd
     def do_reallocate_person(self, arg):
@@ -98,9 +107,10 @@ class AmityApplication(cmd.Cmd):
         ''' Usage: print_room <room_name>'''
         r_name = arg["<room_name>"]
         if r_name.upper() in self.amity.rooms:
-            self.amity.print_room_occupants(r_name)
+            self.amity.print_room_occupants(r_name.upper())
         else:
             print('There is no room called %s in Amity' % r_name)
+
     @docopt_cmd
     def do_print_allocations(self, arg):
         '''Usage: print_allocations [--o=filename] '''
@@ -109,6 +119,7 @@ class AmityApplication(cmd.Cmd):
             self.amity.print_room_allocated(filename)
         else:
             self.amity.print_room_allocated()
+
     @docopt_cmd
     def do_print_unallocated(self, arg):
         '''Usage: print_unallocated [--o=filename] '''
@@ -117,6 +128,7 @@ class AmityApplication(cmd.Cmd):
             self.amity.print_unallocated(filename)
         else:
             self.amity.print_unallocated()
+
     @docopt_cmd
     def do_save_state(self, arg):
         '''Usage: save_state [--db=sqlite_database]'''
@@ -125,10 +137,12 @@ class AmityApplication(cmd.Cmd):
             Amity.save_state(database_name)
         else:
             Amity.save_state('default_db')
+
     @docopt_cmd
     def do_load_state(self, arg):
         '''Usage: load_state <sqlite_database>'''
         pass
+
     @docopt_cmd
     def do_quit(self, arg):
         '''Usage: quit '''

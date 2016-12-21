@@ -21,75 +21,84 @@ class Amity(object):
 
     def create_room(self,rm_name,rm_type):
         '''create a room instance and append it to the rooms lists.'''
+        rm_type = rm_type.upper()
+        mapping = {'OFFICE': Office, 'LIVINGSPACE': LivingSpace}
+        new_room = mapping[rm_type](rm_name)
 
-        if rm_name in self.rooms:
-            raise ValueError("A room with same name already exist")
-        if rm_type=='OFFICE':
-            rm_name=Office(rm_name)
-            self.offices.append(rm_name.rm_name)
-
+        if rm_type == 'OFFICE':
+            self.offices.append(new_room.rm_name)
         elif rm_type=='LIVINGSPACE':
-            rm_name=LivingSpace(rm_name)
-            self.lspace.append(rm_name.rm_name)
+            self.lspace.append(new_room.rm_name)
 
         self.rooms=self.offices +self.lspace
-        self.available_rooms.append(rm_name.rm_name)
-        self.rm_occupancy[rm_name.rm_name]=[]
-        print (rm_name.rm_name,"Room successfully created")
-
+        self.available_rooms.append(new_room.rm_name)
+        self.rm_occupancy[new_room.rm_name]=[]
+        print (new_room.rm_name,"Room successfully created")
 
     def add_person(self,f_name,s_name,role,*args):
         '''add person object to the persons list'''
-        fullname=f_name + " " + s_name
-        firstname=f_name
-        secondname=s_name
-        if len(args) ==0:
-            args[0]="N"
+        fullname = f_name + " " + s_name
 
-        if role=='FELLOW':
-            f_name=Fellow(f_name,s_name)
+        if len(args) == 0:
+            args = "N"
+
+        if role == 'FELLOW':
+            person = Fellow(f_name,s_name)
             self.fellows.append(fullname)
-        elif role=='STAFF':
-            f_name=Staff(f_name,s_name)
+        elif role == 'STAFF':
+            person = Staff(f_name,s_name)
             self.staffs.append(fullname)
         else:
             raise TypeError("Person can only be Staff or Fellow")
 
-        self.persons=self.staffs+self.fellows
+        self.persons = self.staffs+self.fellows
+        self.allocate_room(f_name,s_name,role,args[0])
         print(fullname," successfully added")
-        self.allocate_room(firstname,secondname,role,args[0])
 
     def allocate_office_automatically(self,fullname):
         '''allocate everyone to an office automaticaly'''
-        random_room=random.choice(self.offices)
-        if len(self.rm_occupancy[random_room])<6:# get random office
-            self.rm_occupancy[random_room].append(fullname)
-            print ("successfully alocated office")
-        elif len(self.rm_occupancy[random_room])==6:
-            self.full_rooms.append(random_room)
-            self.available_rooms.remove(random_room)
+        if len(self.offices)>0:
+            random_room = random.choice(list(set(self.available_rooms) & set(self.offices)))
+            if len(self.rm_occupancy[random_room]) < 6:# get random office
+                self.rm_occupancy[random_room].append(fullname)
+                print ("successfully alocated office")
+            elif len(self.rm_occupancy[random_room]) == 6:
+                self.full_rooms.append(random_room)
+                self.available_rooms.remove(random_room)
 
+            else:
+                self.unallocated_persons.append(fullname)
         else:
             self.unallocated_persons.append(fullname)
-        print (self.rm_occupancy)
+
 
     def allocate_room(self,f_name,s_name,role,*args):
         ''' add a person and allocate them a random room if he passes 'Y' as fouth paremeter'''
         guy=Person(f_name,s_name)
 
-        if args[0]=='Y' and role=="FELLOW":
-            self.allocated_persons.append(guy.fullname)#add person to list of persons with rooms
-            random_room=random.choice(self.lspace)
-            if len(self.rm_occupancy[random_room])<5:
-                self.rm_occupancy[random_room].append(guy.fullname)#add person to living space room
-            elif len(self.rm_occupancy[random_room])==4:
-                self.full_rooms.append(random_room)
-                self.available_rooms.remove(random_room)
+        if args[0] == 'Y' and role == "FELLOW":
+            if (len(self.lspace) > 0):
+                random_room = random.choice(list(set(self.available_rooms) & set(self.lspace)))
+                for room in list(set(self.available_rooms) & set(self.lspace)):
+                    if guy.fullname in self.rm_occupancy[room]:
+                        break
 
-            self.allocate_office_automatically(guy.fullname)
+                if len(self.rm_occupancy[random_room]) < 5:
+                    self.rm_occupancy[random_room].append(guy.fullname)#add person to living space room
+                    self.allocated_persons.append(guy.fullname)#add person to list of persons with rooms
+                elif len(self.rm_occupancy[random_room]) == 4:
+                    self.full_rooms.append(random_room)
+                    self.available_rooms.remove(random_room)
+
+                self.allocate_office_automatically(guy.fullname)
+            else:
+                self.unallocated_persons.append(guy.fullname)
+
+
         else:
             self.unallocated_persons.append(guy.fullname)
             self.allocate_office_automatically(guy.fullname)
+        
 
     def reallocate_room(self, fullname,new_room_name):
         ''' gets the current room where person is alocated ; remove the person from that room and
@@ -119,33 +128,42 @@ class Amity(object):
         '''prints a list of all alocated rooms and their occupance'''
         print ("List of Room Allocations")
         for k,v in self.rm_occupancy.items():
-            for person in self.allocated_persons:
-                if person in v:
-                    return ('Room : ',k, ' = ', ', '.join(self.rm_occupancy[k]),'\n')
+            if k in self.offices:
+                kind="Office"
+            if k in self.lspace:
+                kind="LivingSpace"
+            print (kind,' : ',k )
+            print('-'*20)
+            print (', '.join(self.rm_occupancy[k]))
+            print('-'*50)
 
     def print_unallocated(self):
         print(" List Of Unallocated Persons ")
-        print("______________________________")
-        count=0
+        print('-'*50)
+        count=1
         for person in self.unallocated_persons:
             print (count,":",person)
             count+=1
 
-    def load_people(self):
+
+    def load_people(self, filepath):
         '''get names of people from a txt file and randomly allocate them rooms'''
-        with open('./people_to_load.txt', 'r') as people:
+        with open(filepath, 'r') as people:
             for person in people:
-                person=person.rstrip().split()
-                accomodate = person[3] if len(person) == 4 else "N"
-                self.add_person(person[0], person[1], person[2])
-                self.allocate_room(person[0], person[1], person[2],
-                                 accomodate)
+                person_details = person.rstrip().split()
+                accomodate = person_details[3] if len(person_details) == 4 else "N"
+                self.add_person(person_details[0], person_details[1],
+                                person_details[2],accomodate)
+
         print (self.persons)
 
     def print_room_occupants(self,room_name):
         '''prints out all the occupants of the said room'''
         if room_name in list(self.rm_occupancy.keys()):
-            return (room_name,': ', ', '.join(self.rm_occupancy[room_name]))
+            print("-"*50)
+            print (room_name,' : ')
+            print( ', '.join(self.rm_occupancy[room_name]))
+            print("-"*50)
         else:
             raise TypeError("there is no such room, kindly try another name ")
 
