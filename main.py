@@ -64,9 +64,9 @@ class AmityApplication(cmd.Cmd):
         r_name = arg["<room_name>"]
         r_type = arg["<room_type>"]
         if r_type.upper() != "OFFICE" and r_type.upper() != "LIVINGSPACE":
-            print('Room already exists')
-        elif r_name.upper() in self.amity.rooms:
             print ('Wrong room type: can only be Office or LivingSpace')
+        elif r_name.upper() in self.amity.rooms:
+            print('Room already exists')
         else:
             self.amity.create_room(r_name.upper(), ''.join(r_type.upper()))
 
@@ -82,7 +82,7 @@ class AmityApplication(cmd.Cmd):
             self.amity.add_person(f_name.upper(), l_name.upper(), role.upper(),
                                   wants_accomodation.upper())
         else:
-            self.amity.add_person(f_name.upper(), l_name.upper(), role.upper(), )
+            self.amity.add_person(f_name.upper(), l_name.upper(), role.upper())
 
     @docopt_cmd
     def do_load_people(self, arg):
@@ -92,6 +92,7 @@ class AmityApplication(cmd.Cmd):
             self.amity.load_people(file_n)
         except Exception:
             print("File not found")
+
     @docopt_cmd
     def do_reallocate_person(self, arg):
         ''' Usage: reallocate_person <firstname> <lastname> <new_room_name>'''
@@ -99,8 +100,12 @@ class AmityApplication(cmd.Cmd):
         last_name = arg["<lastname>"]
         full_name = first_name + " " + last_name
         new_room = arg["<new_room_name>"]
-
-        self.amity.reallocate_room(full_name.upper(), new_room.upper())
+        if full_name not in self.amity.persons:
+            print ("Person does not exist in amity")
+        elif new_room in self.amity.rooms:
+            self.amity.reallocate_room(full_name.upper(), new_room.upper())
+        else:
+            print("The room does not exist in amity")
 
     @docopt_cmd
     def do_print_room(self, arg):
@@ -134,14 +139,10 @@ class AmityApplication(cmd.Cmd):
         '''Usage: save_state [--db=sqlite_database]'''
         database_name = arg["--db"]
         if database_name:
-            Amity.save_state(database_name)
+            self.amity.save_state(database_name)
         else:
-            Amity.save_state('default_db')
+            self.amity.save_state()
 
-    @docopt_cmd
-    def do_load_state(self, arg):
-        '''Usage: load_state <sqlite_database>'''
-        pass
 
     @docopt_cmd
     def do_quit(self, arg):

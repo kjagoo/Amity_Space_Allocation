@@ -1,3 +1,11 @@
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from tabulate import tabulate
+
+from .db_model import (Base, Person, Room, RoomAllocations,
+                          LivingSpaceAllocations, OfficeAllocations)
+
+
 from .person import Person, Fellow, Staff
 import random
 # import os
@@ -98,7 +106,7 @@ class Amity(object):
         else:
             self.unallocated_persons.append(guy.fullname)
             self.allocate_office_automatically(guy.fullname)
-        
+
 
     def reallocate_room(self, fullname,new_room_name):
         ''' gets the current room where person is alocated ; remove the person from that room and
@@ -166,6 +174,56 @@ class Amity(object):
             print("-"*50)
         else:
             raise TypeError("there is no such room, kindly try another name ")
+
+    def save_state(self,db_name=None):
+
+        if not db_name:
+            db = DatabaseCreator("default_db")
+        else:
+            db = DatabaseCreator(db_name)
+        Base.metadata.bind = db.engine
+        db_session = db.session()
+
+        for room in list(set(self.rooms) & set(self.lspace)):
+            lspace_to_save = LivingSpaceAllocations(
+                name=room,
+                rtype="LivingSpace"
+            )
+            db_session.merge(lspace_to_save)
+
+        for room in list(set(self.rooms) & set(self.offices)):
+            office_to_save = OfficeAllocations(
+                name=room,
+                rtype="Office"
+            )
+            db_session.merge(office_to_save)
+
+        for person in list(set(self.persons) & set(self.staffs)):
+            staff_to_save = Person(
+                # person_id=person.person_id,
+                name=person,
+                designation="Staff"
+            )
+            db_session.merge(staff_to_save)
+
+        for person in list(set(self.persons) & set(self.fellows)):
+            fellow_to_save = Person(
+                # person_id=person.person_id,
+                name=person,
+                designation="Fellow"
+            )
+            db_session.merge(fellow_to_save)
+
+        for room in self.rm_occupancy:
+            members = ",".join(self.rm_occupancy[room])
+            room_allocations = RoomAllocations(
+                room_name=room,
+                members=members
+            )
+            db_session.merge(room_allocations)
+
+        db_session.commit()
+        print("Success!")
 
 class Room (object):
     ''' Room class creates the object attributes of the room'''
