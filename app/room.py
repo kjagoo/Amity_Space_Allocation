@@ -2,9 +2,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from tabulate import tabulate
 
-from .db_model import (Base, Person, Room, RoomAllocations,
-                          LivingSpaceAllocations, OfficeAllocations)
-
+from .db_model import (Base, PersonDb, UnallocatedPerson, AllocatedPerson, AvailableRooms, RoomAllocations,
+                          LivingSpaceAllocations, OfficeAllocations,DatabaseCreator)
 
 from .person import Person, Fellow, Staff
 import random
@@ -43,12 +42,9 @@ class Amity(object):
         self.rm_occupancy[new_room.rm_name]=[]
         print (new_room.rm_name,"Room successfully created")
 
-    def add_person(self,f_name,s_name,role,*args):
+    def add_person(self,f_name,s_name,role,wa=False):
         '''add person object to the persons list'''
         fullname = f_name + " " + s_name
-
-        if len(args) == 0:
-            args = "N"
 
         if role == 'FELLOW':
             person = Fellow(f_name,s_name)
@@ -60,14 +56,14 @@ class Amity(object):
             raise TypeError("Person can only be Staff or Fellow")
 
         self.persons = self.staffs+self.fellows
-        self.allocate_room(f_name,s_name,role,args[0])
-        print(fullname," successfully added")
+        self.allocate_room(f_name,s_name,role,wa)
+        print(fullname," successfully added ")
 
     def allocate_office_automatically(self,fullname):
         '''allocate everyone to an office automaticaly'''
-        if len(self.offices)>0:
+        if (len(self.offices) > 0) and (len(self.available_rooms) > 0):
             random_room = random.choice(list(set(self.available_rooms) & set(self.offices)))
-            if len(self.rm_occupancy[random_room]) < 6:# get random office
+            if len(self.rm_occupancy[random_room]) < 7:# get random office
                 self.rm_occupancy[random_room].append(fullname)
                 print ("successfully alocated office")
             elif len(self.rm_occupancy[random_room]) == 6:
@@ -79,21 +75,18 @@ class Amity(object):
         else:
             self.unallocated_persons.append(fullname)
 
-
     def allocate_room(self,f_name,s_name,role,*args):
         ''' add a person and allocate them a random room if he passes 'Y' as fouth paremeter'''
         guy=Person(f_name,s_name)
 
-        if args[0] == 'Y' and role == "FELLOW":
+        if args[0]== 'Y' and role=="FELLOW":
             if (len(self.lspace) > 0):
                 random_room = random.choice(list(set(self.available_rooms) & set(self.lspace)))
-                for room in list(set(self.available_rooms) & set(self.lspace)):
-                    if guy.fullname in self.rm_occupancy[room]:
-                        break
 
                 if len(self.rm_occupancy[random_room]) < 5:
                     self.rm_occupancy[random_room].append(guy.fullname)#add person to living space room
                     self.allocated_persons.append(guy.fullname)#add person to list of persons with rooms
+
                 elif len(self.rm_occupancy[random_room]) == 4:
                     self.full_rooms.append(random_room)
                     self.available_rooms.remove(random_room)
@@ -101,7 +94,6 @@ class Amity(object):
                 self.allocate_office_automatically(guy.fullname)
             else:
                 self.unallocated_persons.append(guy.fullname)
-
 
         else:
             self.unallocated_persons.append(guy.fullname)
@@ -112,19 +104,24 @@ class Amity(object):
         ''' gets the current room where person is alocated ; remove the person from that room and
         allocate the person to another room '''
 
-        if fullname in self.persons == False:
+        if fullname not in self.persons:
             raise ValueError ("the person does not exist")
-        if new_room_name not in self.rm_occupancy.keys() ==True:
+        if new_room_name not in self.rm_occupancy.keys():
             raise ValueError ("the room does not exist")
-        if new_room_name in self.full_rooms ==True:
+        if new_room_name in self.full_rooms:
             raise ValueError ("the room is full, kindly select another room")
-
-        for k,v in self.rm_occupancy.items():#remove person from curret room occupancy
-            if fullname in v:
-                v.remove(fullname)
-                if k in self.full_rooms: #check if previous room was full
-                    self.full_rooms.remove(k)# remove room from full room
-                    self.available_rooms.append(k)# make room available
+        if new_room_name in self.offices:
+            room_kind = self.offices
+        elif new_room_name in self.lspace:
+            room_kind = self.lspace
+        try:
+            old_room=[room for room in self.rm_occupancy.keys() if fullname in self.rm_occupancy[room] and room in room_kind][0]
+            self.rm_occupancy[old_room].remove(fullname)
+            if old_room in self.full_rooms: #check if previous room was full
+                self.full_rooms.remove(old_room)# remove room from full room
+                self.available_rooms.append(old_room)# make room available
+        except:
+            raise ValueError("Can only realocate rooms of same kind")
         try:
             self.rm_occupancy[new_room_name].append(fullname) # add person to new room
             print("Reallocate successfully to: ",new_room_name)
@@ -134,20 +131,24 @@ class Amity(object):
 
     def print_room_allocated(self):
         '''prints a list of all alocated rooms and their occupance'''
-        print ("List of Room Allocations")
+        response = "List of Room Allocations"+ '\n'
+
         for k,v in self.rm_occupancy.items():
             if k in self.offices:
                 kind="Office"
-            if k in self.lspace:
+            else:
                 kind="LivingSpace"
-            print (kind,' : ',k )
-            print('-'*20)
-            print (', '.join(self.rm_occupancy[k]))
-            print('-'*50)
+            response = response + kind + ' : ' + k+ '\n'
+            response = response +  '-'*20+ '\n'
+            response = response + ', '.join(self.rm_occupancy[k])+ '\n'
+            response = response +  '-'*50 + '\n'
+
+        print (response)
 
     def print_unallocated(self):
-        print(" List Of Unallocated Persons ")
-        print('-'*50)
+        response = " List Of Unallocated Persons "+ "\n"
+        response = response + '-'*50+ "\n"
+        print(response)
         count=1
         for person in self.unallocated_persons:
             print (count,":",person)
@@ -168,62 +169,110 @@ class Amity(object):
     def print_room_occupants(self,room_name):
         '''prints out all the occupants of the said room'''
         if room_name in list(self.rm_occupancy.keys()):
-            print("-"*50)
-            print (room_name,' : ')
-            print( ', '.join(self.rm_occupancy[room_name]))
-            print("-"*50)
+            response= "-"*50 + "\n"
+            response = response + room_name + "\n"+ "\n"
+            response = response + ', '.join(self.rm_occupancy[room_name])+ "\n"
+            response= "-"*50 + "\n"
         else:
             raise TypeError("there is no such room, kindly try another name ")
 
-    def save_state(self,db_name=None):
-
-        if not db_name:
-            db = DatabaseCreator("default_db")
-        else:
-            db = DatabaseCreator(db_name)
+    def save_state(self,db_name="default_db"):
+        db = DatabaseCreator(db_name)
         Base.metadata.bind = db.engine
         db_session = db.session()
 
         for room in list(set(self.rooms) & set(self.lspace)):
             lspace_to_save = LivingSpaceAllocations(
-                name=room,
-                rtype="LivingSpace"
-            )
+                room_name=room,
+                rm_type="LivingSpace")
             db_session.merge(lspace_to_save)
 
         for room in list(set(self.rooms) & set(self.offices)):
             office_to_save = OfficeAllocations(
-                name=room,
-                rtype="Office"
-            )
+                room_name=room,
+                rm_type="Office")
             db_session.merge(office_to_save)
 
-        for person in list(set(self.persons) & set(self.staffs)):
-            staff_to_save = Person(
-                # person_id=person.person_id,
-                name=person,
-                designation="Staff"
-            )
-            db_session.merge(staff_to_save)
+        for room in self.available_rooms:
+            room_to_save = AvailableRooms(
+                room_name=room)
+            db_session.merge(room_to_save)
 
-        for person in list(set(self.persons) & set(self.fellows)):
-            fellow_to_save = Person(
-                # person_id=person.person_id,
+        for person in self.persons:
+            if person in self.staffs:
+                role="Staff"
+            else:
+                role="Fellow"
+
+            person_to_save = PersonDb(
                 name=person,
-                designation="Fellow"
-            )
-            db_session.merge(fellow_to_save)
+                role=role )
+            db_session.merge(person_to_save)
+
+        for person in self.unallocated_persons:
+            person_to_save = UnallocatxedPerson(
+                name=person )
+            db_session.merge(person_to_save)
+
+        for person in self.allocated_persons:
+            person_to_save = AllocatedPerson(
+                name=person)
+            db_session.merge(person_to_save)
 
         for room in self.rm_occupancy:
             members = ",".join(self.rm_occupancy[room])
             room_allocations = RoomAllocations(
                 room_name=room,
-                members=members
-            )
+                members=members)
             db_session.merge(room_allocations)
 
         db_session.commit()
         print("Success!")
+
+    def load_state(self, dbname=None):
+        """Loads data from a DB file into the app."""
+        engine = create_engine("sqlite:///" + dbname + ".sqlite")
+        Session = sessionmaker()
+        Session.configure(bind=engine)
+        session = Session()
+        people = session.query(PersonDb).all()
+        allocated_persons = session.query(AllocatedPerson).all()
+        unallocated_persons = session.query(UnallocatedPerson).all()
+        rm_occupancy = session.query(RoomAllocations)
+        available_rooms = session.query(AvailableRooms)
+        lspaces = session.query(LivingSpaceAllocations)
+        offices = session.query(OfficeAllocations)
+        if not dbname:
+            print("You must select a db to load.")
+        else:
+            for room in lspaces:
+                self.rooms.append(room)
+                self.lspace.append(room)
+
+            for room in offices:
+                self.rooms.append(room)
+                self.offices.append(room)
+
+            for person in people:
+                if (person.role == "Staff"):
+                    self.staffs.append(person.name)
+                elif (person.role == "Fellow"):
+                    self.fellows.append(person.name)
+                self.persons = self.staffs + self.fellows
+
+            for person in allocated_persons:
+                self.allocated_persons.append(person.name)
+
+            for person in unallocated_persons:
+                self.unallocated_persons.append(person.name)
+
+            for occupancy in rm_occupancy:
+                all_members = occupancy.members.split(",")
+                self.rm_occupancy[occupancy.room_name] = all_members
+            self.rm_occupancy.update(self.rm_occupancy)
+            print (self.rm_occupancy)
+
+            print("Data from %s loaded to the app." % dbname)
 
 class Room (object):
     ''' Room class creates the object attributes of the room'''
