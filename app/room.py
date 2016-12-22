@@ -63,7 +63,7 @@ class Amity(object):
         '''allocate everyone to an office automaticaly'''
         if (len(self.offices) > 0) and (len(self.available_rooms) > 0):
             random_room = random.choice(list(set(self.available_rooms) & set(self.offices)))
-            if len(self.rm_occupancy[random_room]) < 7:# get random office
+            if len(self.rm_occupancy[random_room]) < 6:# get random office
                 self.rm_occupancy[random_room].append(fullname)
                 print ("successfully alocated office")
             elif len(self.rm_occupancy[random_room]) == 6:
@@ -83,7 +83,7 @@ class Amity(object):
             if (len(self.lspace) > 0):
                 random_room = random.choice(list(set(self.available_rooms) & set(self.lspace)))
 
-                if len(self.rm_occupancy[random_room]) < 5:
+                if len(self.rm_occupancy[random_room]) < 4:
                     self.rm_occupancy[random_room].append(guy.fullname)#add person to living space room
                     self.allocated_persons.append(guy.fullname)#add person to list of persons with rooms
 
@@ -138,6 +138,7 @@ class Amity(object):
                 kind="Office"
             else:
                 kind="LivingSpace"
+
             response = response + kind + ' : ' + k+ '\n'
             response = response +  '-'*20+ '\n'
             response = response + ', '.join(self.rm_occupancy[k])+ '\n'
@@ -173,6 +174,7 @@ class Amity(object):
             response = response + room_name + "\n"+ "\n"
             response = response + ', '.join(self.rm_occupancy[room_name])+ "\n"
             response= "-"*50 + "\n"
+            print (response)
         else:
             raise TypeError("there is no such room, kindly try another name ")
 
@@ -210,7 +212,7 @@ class Amity(object):
             db_session.merge(person_to_save)
 
         for person in self.unallocated_persons:
-            person_to_save = UnallocatxedPerson(
+            person_to_save = UnallocatedPerson(
                 name=person )
             db_session.merge(person_to_save)
 
@@ -246,12 +248,12 @@ class Amity(object):
             print("You must select a db to load.")
         else:
             for room in lspaces:
-                self.rooms.append(room)
-                self.lspace.append(room)
+                self.rooms.append(room.room_name)
+                self.lspace.append(room.room_name)
 
             for room in offices:
-                self.rooms.append(room)
-                self.offices.append(room)
+                self.rooms.append(room.room_name)
+                self.offices.append(room.room_name)
 
             for person in people:
                 if (person.role == "Staff"):
@@ -265,6 +267,9 @@ class Amity(object):
 
             for person in unallocated_persons:
                 self.unallocated_persons.append(person.name)
+                
+            for room in available_rooms:
+                self.available_rooms.append(room.room_name)
 
             for occupancy in rm_occupancy:
                 all_members = occupancy.members.split(",")
