@@ -62,14 +62,18 @@ class Amity(object):
     def allocate_office_automatically(self,fullname):
         '''allocate everyone to an office automaticaly'''
         if (len(self.offices) > 0) and (len(self.available_rooms) > 0):
-            random_room = random.choice(list(set(self.available_rooms) & set(self.offices)))
+            space_available=([room for room in self.rm_occupancy.keys() if len(self.rm_occupancy[room]) < 6 and room in self.offices] )
+            if len(space_available) < 1 :
+                self.unallocated_persons.append(fullname)
+                return 'Sorry all rooms are currently fully occupied!'
+            random_room = random.choice(list(set(self.offices) & set(space_available)))
+
             if len(self.rm_occupancy[random_room]) < 6:# get random office
                 self.rm_occupancy[random_room].append(fullname)
                 print ("successfully alocated office")
-            elif len(self.rm_occupancy[random_room]) == 6:
-                self.full_rooms.append(random_room)
-                self.available_rooms.remove(random_room)
-
+                if len(self.rm_occupancy[random_room]) == 6:
+                    self.full_rooms.append(random_room)
+                    self.available_rooms.remove(random_room)
             else:
                 self.unallocated_persons.append(fullname)
         else:
@@ -79,25 +83,38 @@ class Amity(object):
         ''' add a person and allocate them a random room if he passes 'Y' as fouth paremeter'''
         guy=Person(f_name,s_name)
 
-        if args[0]== 'Y' and role=="FELLOW":
+        if args[0]== 'Y' and role == "FELLOW":
             if (len(self.lspace) > 0):
-                random_room = random.choice(list(set(self.available_rooms) & set(self.lspace)))
+                space_available=([room for room in self.rm_occupancy.keys()
+                                if len(self.rm_occupancy[room]) < 4 ])
 
+                random_room = random.choice(list(set(self.available_rooms)
+                                                 & set(self.lspace)))
                 if len(self.rm_occupancy[random_room]) < 4:
                     self.rm_occupancy[random_room].append(guy.fullname)#add person to living space room
                     self.allocated_persons.append(guy.fullname)#add person to list of persons with rooms
-
-                elif len(self.rm_occupancy[random_room]) == 4:
-                    self.full_rooms.append(random_room)
-                    self.available_rooms.remove(random_room)
+                    if len(self.rm_occupancy[random_room]) == 4:
+                        self.full_rooms.append(random_room)
+                        self.available_rooms.remove(random_room)
+                else:
+                    self.unallocated_persons.append(guy.fullname)
 
                 self.allocate_office_automatically(guy.fullname)
             else:
                 self.unallocated_persons.append(guy.fullname)
+                self.allocate_office_automatically(guy.fullname)
+
+        elif args[0]== 'Y' and role=="STAFF":
+            print ("Staff can only be alocated offices")
+            self.allocate_office_automatically(guy.fullname)
 
         else:
-            self.unallocated_persons.append(guy.fullname)
-            self.allocate_office_automatically(guy.fullname)
+            if role=="STAFF":
+                self.allocate_office_automatically(guy.fullname)
+            else:
+                self.unallocated_persons.append(guy.fullname)
+                self.allocate_office_automatically(guy.fullname)
+
 
 
     def reallocate_room(self, fullname,new_room_name):
@@ -139,7 +156,7 @@ class Amity(object):
             else:
                 kind="LivingSpace"
 
-            response = response + kind + ' : ' + k+ '\n'
+            response = response + '-'*50 + "\n" +kind + ' : ' + k+ '\n'
             response = response +  '-'*20+ '\n'
             response = response + ', '.join(self.rm_occupancy[k])+ '\n'
             response = response +  '-'*50 + '\n'
@@ -169,14 +186,12 @@ class Amity(object):
 
     def print_room_occupants(self,room_name):
         '''prints out all the occupants of the said room'''
-        if room_name in list(self.rm_occupancy.keys()):
-            response= "-"*50 + "\n"
-            response = response + room_name + "\n"+ "\n"
-            response = response + ', '.join(self.rm_occupancy[room_name])+ "\n"
-            response= "-"*50 + "\n"
-            print (response)
-        else:
-            raise TypeError("there is no such room, kindly try another name ")
+
+        response= "-"*50 + "\n"
+        response = response + room_name+ "\n"+ "\n"
+        response = response + ', '.join(self.rm_occupancy[room_name])+"\n"
+        response=response+ "-"*50 + "\n"
+        print (response)
 
     def save_state(self,db_name="default_db"):
         db = DatabaseCreator(db_name)
@@ -267,7 +282,7 @@ class Amity(object):
 
             for person in unallocated_persons:
                 self.unallocated_persons.append(person.name)
-                
+
             for room in available_rooms:
                 self.available_rooms.append(room.room_name)
 
