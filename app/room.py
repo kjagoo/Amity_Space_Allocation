@@ -70,6 +70,7 @@ class Amity(object):
 
             if len(self.rm_occupancy[random_room]) < 6:# get random office
                 self.rm_occupancy[random_room].append(fullname)
+                self.allocated_persons.append(fullname)
                 print ("successfully alocated office")
                 if len(self.rm_occupancy[random_room]) == 6:
                     self.full_rooms.append(random_room)
@@ -156,10 +157,10 @@ class Amity(object):
             else:
                 kind="LivingSpace"
 
-            response = response + '-'*50 + "\n" +kind + ' : ' + k+ '\n'
+            response = response + '_'*50 + "\n" +kind + ' : ' + k+ '\n'
             response = response +  '-'*20+ '\n'
             response = response + ', '.join(self.rm_occupancy[k])+ '\n'
-            response = response +  '-'*50 + '\n'
+            response = response +  '\n'
 
         print (response)
 
@@ -168,6 +169,7 @@ class Amity(object):
         response = response + '-'*50+ "\n"
         print(response)
         count=1
+        self.unallocated_persons=list(set(self.unallocated_persons))
         for person in self.unallocated_persons:
             print (count,":",person)
             count+=1
@@ -182,7 +184,7 @@ class Amity(object):
                 self.add_person(person_details[0], person_details[1],
                                 person_details[2],accomodate)
 
-        print (self.persons)
+        #print (self.persons)
 
     def print_room_occupants(self,room_name):
         '''prints out all the occupants of the said room'''
@@ -290,7 +292,7 @@ class Amity(object):
                 all_members = occupancy.members.split(",")
                 self.rm_occupancy[occupancy.room_name] = all_members
             self.rm_occupancy.update(self.rm_occupancy)
-            print (self.rm_occupancy)
+            #print (self.rm_occupancy)
 
             print("Data from %s loaded to the app." % dbname)
 

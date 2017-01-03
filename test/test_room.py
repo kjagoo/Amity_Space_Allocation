@@ -33,7 +33,7 @@ class TDDamity(unittest.TestCase):
         self.amity.create_room("hogs","office")
         len_allocated_persons=len(self.amity.allocated_persons)#previous list of persons allocated rooms
         len_unallocated_persons=len(self.amity.unallocated_persons)#previous list of persons unallocated_persons allocation
-        self.amity.add_person('joshua','kagenyi','STAFF','Y')
+        self.amity.add_person('joshua','kagenyi','STAFF','N')
         self.assertEqual(len(self.amity.allocated_persons),len_allocated_persons+1,
         msg='person should be added to allocated list ')
 
@@ -45,15 +45,21 @@ class TDDamity(unittest.TestCase):
     def test_reallocation_room(self):
         ''' test wether person is reallocated successfully : remove from previous room and added to new room'''
         # automatically add person to room
-        previous_room=[k for k, v in self.amity.rm_occupancy.items() if 'joshua' in v][0]
-        len_previous_room=len(self.amity.rm_occupancy[previous_room])#length of room before rellocation
+        self.amity.create_room("tanzania","office")
         len_of_new_room=len(self.amity.rm_occupancy['tanzania'])#length of room before adding person
 
-        self.amity.reallocate_room('joshua','tanzania')# check that lenght of new room has increased by 1
+        self.amity.add_person('joshua','kagenyi','STAFF','N')
+        print(self.amity.rm_occupancy)
+
+        self.amity.reallocate_room('joshua kagenyi','tanzania')# check that lenght of new room has increased by 1
         self.assertEqual(len(self.amity.rm_occupancy['tanzania']),
-        len_of_new_room+1,msg='number of occupants in new room should increase')# check that length of previous room has decreased by 1
-        self.assertEqual(len(self.amity.rm_occupancy[previous_room]),
-        len_previous_room-1,msg='number of occupants in prevoius room should decrease ')
+        len_of_new_room+1,msg='number of occupants in new room should increase')
+
+        person_in_room=[room for room in self.amity.rm_occupancy.keys() if 'joshua kagenyi'
+                       in self.amity.rm_occupancy[room]]
+                       # check that person exist in only one room
+        self.assertEqual(len(person_in_room),1,
+        msg='person should only exis in one room after reallocation ')
 
     def test_reallocation_room_raises_error_if_person_does_not_exist(self):
         ''' test that person being reallocated exists in Amity and ValueError raised if not'''
